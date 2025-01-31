@@ -53,3 +53,6 @@ Third party plugins tools for python based applications.
 ## License
 
 Free to use
+
+## NOTE
+i use gpt to develop code.
