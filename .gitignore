@@ -7,12 +7,12 @@ venv/
 
 # Logs
 *.log
+scan_logs.txt
 
 # Reports
 sast_reports/
-security_reports/
+security_reports/*
 
 # HTML Reports
 templates/dast_report.html
 templates/sast_report.html
-scan_logs.txt
