@@ -1,0 +1,64 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Scanner Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-black">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="#">Security Scanner</a>
+            <a class="btn btn-outline-light" href="/logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container mt-4 text-white">
+        <h2>Dashboard</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card bg-dark text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Package Scan</h5>
+                        <p class="card-text">Check installed packages for vulnerabilities.</p>
+                        <a href="/scan/packages" class="btn btn-light">Run Scan</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">SAST Scan</h5>
+                        <p class="card-text">Run Static Analysis Security Testing.</p>
+                        <a href="/scan/sast" class="btn btn-light">Run Scan</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">DAST Scan</h5>
+                        <p class="card-text">Run Dynamic Analysis Security Testing.</p>
+                        <button class="btn btn-light" onclick="runDast()">Run Scan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h3 class="mt-5">Reports</h3>
+        <a href="/reports" class="btn btn-outline-light">View Reports</a>
+    </div>
+    <script>
+        function runDast() {
+            fetch('/scan/dast', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target_url: "http://localhost:8000" })
+            }).then(response => response.json()).then(data => {
+                alert('DAST Scan Completed. Check reports for details.');
+            }).catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+{
+    "error": "Command '['bandit', '-r', './', '-f', 'json']' returned non-zero exit status 1."
+}

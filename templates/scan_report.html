@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px #ccc; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #222; color: white; }
+        .critical { background-color: #ff4d4d; color: white; }
+        .high { background-color: #ff9800; color: white; }
+        .moderate { background-color: #ffcc00; color: black; }
+        .low { background-color: #4caf50; color: white; }
+        .unknown { background-color: #808080; color: white; }
+        .null { background-color: #cccccc; color: black; }
+        .severity-label { padding: 5px 10px; border-radius: 4px; color: white; cursor: pointer; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px #ccc; max-width: 400px; }
+        .modal-content { max-height: 300px; overflow-y: auto; }
+        .close { cursor: pointer; color: red; float: right; font-size: 20px; }
+        canvas { max-width: 500px; max-height: 300px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h3>Vulnerability Distribution</h3>
+    <canvas id="severityChart"></canvas>
+
+    <h2>Package Scan Report</h2>
+    
+    <label for="severity-filter">Filter by Severity:</label>
+    <select id="severity-filter" onchange="filterTable()">
+        <option value="ALL">All</option>
+        <option value="CRITICAL">Critical</option>
+        <option value="HIGH">High</option>
+        <option value="MODERATE">Moderate</option>
+        <option value="LOW">Low</option>
+        <option value="UNKNOWN">Unknown</option>
+        <option value="NULL">Null</option>
+    </select>
+
+    <table id="vulnerability-table">
+        <thead>
+            <tr>
+                <th>Package</th>
+                <th>Version</th>
+                <th>Vulnerability</th>
+                <th>Severity</th>
+                <th>Fixed Version</th>
+                <th>More</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pkg in report %}
+                {% for vuln in pkg.vulnerabilities %}
+                    <tr class="vuln-row" data-severity="{{ vuln.severity_level }}">
+                        <td>{{ pkg.package }}</td>
+                        <td>{{ pkg.version }}</td>
+                        <td>{{ vuln.summary }}</td>
+                        <td>
+                            <span class="severity-label {{ vuln.severity_level.lower() }}" onclick="filterBySeverity('{{ vuln.severity_level }}')">
+                                {{ vuln.severity_level }}
+                            </span>
+                        </td>
+                        <td>{{ vuln.fixed_version }}</td>
+                        <td>
+                            <button onclick="showModal('{{ vuln.reference_links | join(', ') }}')">More</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="modal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <div class="modal-content" id="modal-content"></div>
+</div>
+
+<script>
+    function filterBySeverity(severity) {
+        document.getElementById("severity-filter").value = severity;
+        filterTable();
+    }
+
+    function filterTable() {
+        let filterValue = document.getElementById("severity-filter").value;
+        let rows = document.querySelectorAll(".vuln-row");
+        rows.forEach(row => {
+            let severity = row.dataset.severity;
+            row.style.display = (filterValue === "ALL" || severity === filterValue) ? "" : "none";
+        });
+    }
+
+    let severityCounts = { CRITICAL: 0, HIGH: 0, MODERATE: 0, LOW: 0, UNKNOWN: 0, NULL: 0 };
+    document.querySelectorAll(".vuln-row").forEach(row => {
+        let severity = row.dataset.severity;
+        if (severityCounts[severity] !== undefined) {
+            severityCounts[severity]++;
+        }
+    });
+
+    let ctx = document.getElementById("severityChart").getContext("2d");
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Critical", "High", "Moderate", "Low", "Unknown", "Null"],
+            datasets: [{
+                label: "Vulnerability Count",
+                data: [
+                    severityCounts.CRITICAL, 
+                    severityCounts.HIGH, 
+                    severityCounts.MODERATE, 
+                    severityCounts.LOW, 
+                    severityCounts.UNKNOWN, 
+                    severityCounts.NULL
+                ],
+                backgroundColor: ["#ff4d4d", "#ff9800", "#ffcc00", "#4caf50", "#808080", "#cccccc"]
+            }]
+        }
+    });
+
+    function showModal(links) {
+        let modal = document.getElementById("modal");
+        let content = document.getElementById("modal-content");
+        content.innerHTML = links.split(', ').map(link => `<a href="${link}" target="_blank">${link}</a>`).join("<br>");
+        modal.style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("modal").style.display = "none";
+    }
+</script>
+
+</body>
+</html>
