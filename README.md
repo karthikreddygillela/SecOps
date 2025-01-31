@@ -52,7 +52,4 @@ Third party plugins tools for python based applications.
 
 ## License
 
-This project is licensed under the karthik License. 
-you can download code and use, 
-you can contribute new featuers and commit,
-you can just look and leave it like that also.
+Free to use

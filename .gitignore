@@ -1,0 +1,18 @@
+# Python
+*.pyc
+__pycache__/
+
+# Virtual Environment
+venv/
+
+# Logs
+*.log
+
+# Reports
+sast_reports/
+security_reports/
+
+# HTML Reports
+templates/dast_report.html
+templates/sast_report.html
+scan_logs.txt
